@@ -1,13 +1,9 @@
-import os 
-import math
-import pytest
-
 # Return max value between 2 values
 def max(a, b):
-    this_will_cause_a_error = "asssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+    # this_will_cause_a_error = "asssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
     if a > b:
-        for i in 10:
-            print(i)
+        # for i in 10:
+        #     print(i)
         return a
     else:
         return b

@@ -1,4 +1,3 @@
-from msilib.schema import Error
 import os 
 import math
 import pytest

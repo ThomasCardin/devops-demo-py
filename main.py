@@ -10,7 +10,7 @@ def hello_world():
 
 
 @app.route("/helloDocker")
-def hello_world_docker():
+def hello_docker():
     docker_message = ""
     try:
         docker_message = os.environ("DOCKER_ENV")

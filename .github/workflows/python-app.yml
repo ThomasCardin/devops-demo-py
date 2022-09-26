@@ -41,7 +41,7 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide. 
           # Ignore E302 (Expected 2 blank lines, found 0) and W292 (No new line at the end of the file)
-          flake8 . --count --max-complexity=2 --max-line-length=127 --statistics --ignore=E302,W292
+          flake8 . --count --max-complexity=4 --max-line-length=127 --statistics --ignore=E302,W292
       - name: Run pytest on testing.py
         run: |
           pytest testing.py

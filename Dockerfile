@@ -7,5 +7,7 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
+ENV DOCKER_ENV=$DOCKER_ENV
+
 # port 5000 by default
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]

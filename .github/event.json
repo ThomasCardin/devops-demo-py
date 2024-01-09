@@ -1,0 +1,8 @@
+{
+  "inputs": {
+    "container-name": "devops-demo-py",
+    "tag": "test",
+    "registry": "ghcr.io/thomascardin"
+  }
+}
+

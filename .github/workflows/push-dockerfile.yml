@@ -29,7 +29,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            echo "PR_NUMBER=$(echo "$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)" )" >> $GITHUB_ENV
+            echo "PR_NUMBER=$(echo \"$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)\" )" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx
@@ -87,7 +87,7 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-          echo "PR_NUMBER=$(echo "$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)" )" >> $GITHUB_ENV
+          echo "PR_NUMBER=$(echo \"$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)\" )" >> $GITHUB_ENV
 
       - name: Run Python Script
         run: python scripts/remove-old-image.py

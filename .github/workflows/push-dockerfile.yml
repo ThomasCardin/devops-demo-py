@@ -72,6 +72,7 @@ jobs:
 
   remove-old-image:
     runs-on: ubuntu-latest
+    needs: build-and-push-on-pr-merge
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4

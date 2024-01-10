@@ -1,0 +1,28 @@
+name: Manual Trigger Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      container-name:
+        description: 'Container Name'
+        required: true
+        default: 'my-container'
+      tag:
+        description: 'Container Tag'
+        required: true
+        default: 'latest'
+      registry:
+        description: 'Container Registry'
+        required: true
+        default: 'docker.io'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Workflow Call
+        uses: ./.github/workflows/workflow-to-call.yml
+        with:
+          container-name: devops-demo-py
+          tag: ${{ github.sha }}
+          registry: ghcr.io/thomascardin

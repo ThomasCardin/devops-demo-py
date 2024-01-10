@@ -16,6 +16,7 @@ on:
     types:
       - opened
       - closed
+      - synchronize
 
 jobs:
   build-and-push-on-pr-merge:
@@ -23,13 +24,6 @@ jobs:
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4
-
-      - name: Extract pull request information
-        id: extract_pr
-        uses: actions/github-script@v6
-        with:
-          script: |
-            echo "PR_NUMBER=$(echo \"$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)\" )" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx
@@ -57,7 +51,7 @@ jobs:
           file: ./${{ github.event.repository.name }}/Dockerfile
           push: true
           tags: |
-            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ env.PR_NUMBER }}
+            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ github.event.number }}
             ${{ inputs.registry }}/${{ inputs.container-name }}:${{ inputs.tag }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
@@ -85,16 +79,12 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Set Environment Variables
-        run: |
-          echo "PR_NUMBER=$(echo \"$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)\" )" >> $GITHUB_ENV
-
       - name: Run Python Script
         run: python scripts/remove-old-image.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REGISTRY: ${{ inputs.registry }}
           CONTAINER_NAME: ${{ inputs.container-name }}
-          PR_TAG: ${{ env.PR_NUMBER }}
+          PR_TAG: ${{ github.event.number }}
           USER: ${{ github.actor }}
           CURRENT_COMMIT: ${{ github.sha }}

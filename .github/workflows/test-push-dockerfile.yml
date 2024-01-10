@@ -1,0 +1,28 @@
+name: Manual Trigger Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      container-name:
+        description: 'Container Name'
+        required: true
+        default: 'my-container'
+      tag:
+        description: 'Container Tag'
+        required: true
+        default: 'latest'
+      registry:
+        description: 'Container Registry'
+        required: true
+        default: 'docker.io'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Workflow Call
+        uses: ./.github/workflows/push-dockerfile.yml
+        with:
+          container-name: ${{ github.event.inputs.container-name }}
+          tag: ${{ github.event.inputs.tag }}
+          registry: ${{ github.event.inputs.registry }}

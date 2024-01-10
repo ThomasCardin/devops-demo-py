@@ -34,10 +34,10 @@ def removed_previous_commit_sha_image(user, registry, pr_tag, github_token, cont
             break
 
     if not digest:
-        print(f"Tag {pr_tag} not found.")
+        print(f"Container name {container_name} not found or the only digest found was the current one. If that is the case, you can ignore this error.")
         exit(1)
     else:
-        print(f"Digest found for tag {pr_tag}: {digest}")
+        print(f"Digest found for tag {container_path}: {digest}")
 
     # Get all tags for this digest
     url_get_tags = f"https://api.github.com/orgs/{org}/packages/container/{container_name}/versions"

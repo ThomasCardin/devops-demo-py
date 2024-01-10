@@ -1,17 +1,6 @@
 name: Image build and clean old images
 
 on:
-  workflow_call:
-    inputs:
-      container-name:
-        required: true
-        type: string
-      tag:
-        required: true
-        type: string
-      registry:
-        required: true
-        type: string
   pull_request:
     types:
       - opened
@@ -32,7 +21,7 @@ jobs:
       - name: Log in to the github container registry (GCR)
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          registry: ${{ inputs.registry }}
+          registry: ghcr.io/thomascardin
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,19 +29,18 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ inputs.tag }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: ${{ runner.os }}-buildx
 
       - name: Build and push (latest)
         id: docker_build_latest
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ github.event.repository.name }}
-          file: ./${{ github.event.repository.name }}/Dockerfile
+          context: .
           push: true
           tags: |
-            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ github.event.number }}
-            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ inputs.tag }}
+            ghcr.io/thomascardin/${{ github.event.repository.name }}:${{ github.event.number }}
+            ghcr.io/thomascardin/${{ github.event.repository.name }}:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
@@ -79,12 +67,15 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Install Python dependencies
+        run: pip install requests
+
       - name: Run Python Script
         run: python scripts/remove-old-image.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REGISTRY: ${{ inputs.registry }}
-          CONTAINER_NAME: ${{ inputs.container-name }}
+          REGISTRY: ghcr.io/thomascardin
+          CONTAINER_NAME: ${{ github.event.repository.name }}
           PR_TAG: ${{ github.event.number }}
           USER: ${{ github.actor }}
           CURRENT_COMMIT: ${{ github.sha }}

@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Workflow Call
-        uses: ./.github/workflows/workflow-to-call.yml
+        uses: ./.github/workflows/push-dockerfile.yml
         with:
-          container-name: devops-demo-py
-          tag: ${{ github.sha }}
-          registry: ghcr.io/thomascardin
+          container-name: ${{ github.event.inputs.container-name }}
+          tag: ${{ github.event.inputs.tag }}
+          registry: ${{ github.event.inputs.registry }}

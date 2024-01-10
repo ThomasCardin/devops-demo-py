@@ -1,4 +1,4 @@
-name: Image build
+name: Image build and clean old images
 
 on:
   workflow_call:

@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Trigger Workflow Call
-        uses: thomascardin/.github/workflows/push-dockerfile.yml
+        uses: thomascardin/devops-demo-py/.github/workflows/push-dockerfile.yml
         with:
           container-name: ${{ github.event.inputs.container-name }}
           tag: ${{ github.event.inputs.tag }}

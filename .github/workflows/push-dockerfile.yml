@@ -1,4 +1,3 @@
-# Manual build/push fo now
 name: Image build
 
 on:
@@ -13,63 +12,29 @@ on:
       registry:
         required: true
         type: string
+  pull_request:
+    types:
+      - opened
 
 jobs:
-  build-and-push-on-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v4
-
-      - name: Set up Docker buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to the github container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ inputs.registry }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-${{inputs.container-name}}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-${{inputs.container-name}}
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ inputs.registry }}/${{ inputs.container-name }}:${{ inputs.tag }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-
-      - name: Refresh Cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
-  
   build-and-push-on-pr-merge:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4
+
+      - name: Extract pull request information
+        id: extract_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            echo "PR_NUMBER=$(echo "$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)" )" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to the github container registry
+      - name: Log in to the github container registry (GCR)
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ inputs.registry }}
@@ -90,7 +55,9 @@ jobs:
           context: ./${{ github.event.repository.name }}
           file: ./${{ github.event.repository.name }}/Dockerfile
           push: true
-          tags: ${{ inputs.registry }}/${{ inputs.container-name }}:latest
+          tags: |
+            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ env.PR_NUMBER }}
+            ${{ inputs.registry }}/${{ inputs.container-name }}:${{ inputs.tag }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
@@ -101,3 +68,31 @@ jobs:
 
       - name: Image digest (latest)
         run: echo ${{ steps.docker_build_latest.outputs.digest }}
+
+  remove-old-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+
+      - name: Set Environment Variables
+        run: |
+          echo "PR_NUMBER=$(echo "$(jq -r '.pull_request.number' $GITHUB_EVENT_PATH)" )" >> $GITHUB_ENV
+
+      - name: Run Python Script
+        run: python scripts/remove-old-image.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY: ${{ inputs.registry }}
+          CONTAINER_NAME: ${{ inputs.container-name }}
+          PR_TAG: ${{ env.PR_NUMBER }}
+          USER: ${{ github.actor }}
+          CURRENT_COMMIT: ${{ github.sha }}

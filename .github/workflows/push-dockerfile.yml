@@ -67,6 +67,9 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Install Python dependencies
+        run: pip install requests
+
       - name: Run Python Script
         run: python scripts/remove-old-image.py
         env:

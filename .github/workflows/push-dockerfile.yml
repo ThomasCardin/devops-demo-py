@@ -15,6 +15,7 @@ on:
   pull_request:
     types:
       - opened
+      - closed
 
 jobs:
   build-and-push-on-pr-merge:

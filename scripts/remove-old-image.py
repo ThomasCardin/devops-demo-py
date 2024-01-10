@@ -63,4 +63,4 @@ if __name__ == "__main__":
     user = os.getenv("USER")
     current_commit = os.getenv("CURRENT_COMMIT")
 
-    removed_previous_commit_sha_image(user, registry, pr_tag, github_token, container_name)
+    removed_previous_commit_sha_image(user, registry, pr_tag, github_token, container_name, current_commit)
